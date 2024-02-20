@@ -1,0 +1,439 @@
+Guide de como instalar django e um enviroment
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+Aula do Professor Leonardo <Django>
+
+control shift aspas abre terminal 
+
+control shift p <select interpreter> (escolher a que executa dentro do venv)
+
+pip freeze (mostra o que está instalado).
+
+# criar a pasta e o virtal enviroment
+python -m venv venv
+#
+.\venv\Scripts\activate
+
+python -m pip install --upgrade pip (caso dê o warning)
+ou pip install pip --upgrade
+
+pip install setuptools wheel --upgrade
+
+pip install -U mypy
+pip install -U flake8
+
+pip install -U autopep8
+
+pip install pytest
+/////////////////////////////////////
+
+pip install virtualenv
+
+virtualenv -p python3 .
+
+.\Scripts\activate
+
+pip install django
+
+deactivate (sai do virtual enviroment)  
+
+django-admin é o comando que vi nos possibilitar fazer um infinidades de coisas com o django.
+Uma das mais fundamentais, é criar o nosso projeto com: django-admin createproject <nome>, pode-se criar o 
+projeto direto, mas é uma prática legal criar a pasta source primeiro
+
+depois disso, podemos usar o django-admin startproject <nome> .
+que será criado o arquivo manage.py e o seu projeto django
+
+para startar o projeto, basta usar o comando, python manage.py runserver
+
+python manage.py migrate
+sincroniza todos os setting configurados do arquivo settings.py, para com o projeto django e para com quaisquer apps temos.
+
+One of the key components is the apps, think of apps as components, pieces of the bigger django project, they can hold a good amount of code, but they're not apps of your mobile phone
+
+Para criar o usuário para acessar a página de admin, é preciso criar um usuário, um superusuário com os privilétgios de admin
+para isso usamos o comando: python manage.py createsuperuser
+
+Os apps são as partes individuais do sistema, pense nelas como componentes, para criar um app, é preciso usar o commado: python manage.py startapp <nome>
+com isso, pode-se criar diversos apps, em um exemplo de e-comerce.
+
+we ceartantly could build a project that does all of these things, but the ideia is to meke each app do one thing, and do it really well.
+
+Like, the product app, should only do product related things, not cart related things, that should be separate, that should be on it's own cart app, the app should be pretty narrow and focused,
+once it starts getting wide, than it's time to create another app
+
+once the models of the app is created, and the app is include in the settings INSTALLED_APPS, it is necessary to use 2 commands to map the models to the database:
+python manage.py makemigrations, that command will detect the changes
+python manage.py migrate, will execute the migrations and detect errors
+
+after that beeing made, it needs to me specified that we want to see the model on the admin page, for that, we import the model to admin.py
+after importing and registering to the admin.py, the Product is available to the admin page, you can manage the data from there
+
+NOW how to create Product Objects in the Python Shell. 
+for that, the command is: python manage.py shell
+after opening the python shell, we can insert and manage some data, 
+with the command: from products.models import Product, we do a import close to what we made on the admin page
+with the command: Product.objects.all() we can list the QuerySet, showing all the products that we have. This is a build in Django command.
+
+To create them in the shell, we use the command: Product.objects.create(), another built int Django command. And inside the (we use keyword arguments, referencing the requirements of a Product in
+the database.)
+
+--- New fields
+
+For you to start over with the models, delete all the migration files inside the migrations folder, minus the init file, delete the pycash also, AND the sequelite database, to delete all the things inside
+too.
+
+because the database is deleted, the superuser admin is also deleted, so it's necessary to do it all over again
+com o python shell podemos criar novos produtos, para isso, devemos fazer o import novamente dos produtos com o comando
+from products.models import Product 
+from products.objects.create(keywor_arguments)
+
+--- Change a Model - how to change a model without deleating the database or the migrations
+
+the makemigrations and migrate commands syncs the database with our model, but if we add a field to a model, the database doesn't know about that field, so we have to make sure it does, both these
+commands often make that happen, but it brings some question marks, like, what happen to the previous products that where instantiated without the posterior field that were added.
+
+this presents the keywords arguments null and blank, the null makes sure that the error of non-nullable field doesn't happen when we run the makemigrations method, wich would leabe all products that didn't
+have that field, with a new empty field
+Django doesn't know how many items in the database that are in that situation
+Django is checking the migrations file, wich is checking against the recently altered model file
+
+we could use the keyword arguments # null=True, default=True, we could use both, set the default, or say that the value can be null
+
+OR	
+
+we could prove a one-off default now, as a option of the error that just ocurred, for all the previous items that are there
+
+A principal diferença entre os dois é que blank se aplica apenas à validação de formulário e não tem efeito sobre o banco de dados, enquanto null se aplica ao banco de dados. 
+Em outras palavras, blank determina se um campo pode ser deixado em branco ao criar um objeto do modelo, enquanto null determina se um campo pode ser nulo no banco de dados.
+
+--- Default homepage to Custom homepage
+
+After using the command: python manage.py startapp pages, para criar o app pages, e adicionar o app pages para a parte own apps do settings do projeto,
+dentro das views.py, é aonde nós vamos criar todas as coisas relacionadas as páginas do nosso projeto, pense nas views como o lugar que lida com nossas páginas web, faremos isso ou com funções ou
+classes escritas em python
+
+We created a function in the file views.py in the pages app, that sends a Http response with a html code, for that to properly work, we need to create a url in the urls of the main app of the project
+funny thing, we have a guide step by step to make a view of certain app work on the urls of the main app, just follow the yellow brick road.
+
+the process is quite simple when it comes to Routing and Requiest:
+When you write somethin in the Url, it will be sent a HTTP request to the server, the default setting to handle a return is to look if the url put in the request mach with the urls on the urls.py,
+on the main folder, if it maches, the next thing to do is see if that url has a especific view to return, and we can have as many views as we want.
+
+well, that handles the returns, but not the handling of the rounting system.
+
+On the function that returns a view, the arguments that we put into them by default is a args argument(encapsole whatever enters in a tuple), and a kwargs(encapsole whatever enters in a dictionary(acei-
+-ta argumentos keyword)), mas a requisição, ao invés de entrar na variável *args, pode-se coloca-la no próprio argumento request, para que possamos usa-lo para gerenciar as rotas, como exemplo, podemos
+gerenciar e mostrar a rota de usuário.
+
+--- Django Templating Engine Basics
+
+something that we can encounter is the double curly brackets {{}}, is a thing that Django does by default that can makes us print the relative information, like:
+{{ request.user }}
+
+with that, as a example, we can do thing with the user model, like check if the user is authenticated(is logged in)
+
+{{ request.user.is_authenticated }}
+
+the thing is, maybe, our views are rendered three html pages that might share the same information, like a navigaiton bar, or metadata.
+This is where Template inheritance comes in, let's create a base file, that the following files will inherit from, it will be the base.html
+
+  {% block content %} # curly brackets, and the porcentages and block is Django stuff, the content is a variable.
+  replace me
+  {% endblock %} # endblock is Django stuff too, sometimes we see the variable after endblock.
+  
+In order to make a html file extends from the base one, is necessary to write:
+{{ extends 'base.html' }}
+
+with that, the content inside of the block above, will appear, but will not be replaced, if the block is not used in the html file wich you want to perform the inheritance.
+
+with all html files inheriting one basis, you can consider that they're all uniform in a way.
+
+--- Inncluede Template Tag
+
+for even more specification, we can split each specific element of a page on it's on file, a exemple for that is the navbar
+that can be in it's own file, without any extention, than, the navbar.html can be included on the base file, by the commands of the template generator.
+
+that serves the purpose of individualism and organization, one thing is neve a thing of it's own, but a amalgamation of it's individual parts, making all the thin more
+dynamic.
+
+--- Rendering Context in a Template
+
+The reason we use templates is not so much for inheritance or including, even that Django does does things very well,
+The main reason is for getting dada from the back-end, from the Database.
+
+template context
+
+that's where the **kwargs comes in, on the end of the view function, we have can insert a dictionary, that's why the curly brackets,
+the **kwargs get's everything that get put inside and insert in a dictionary, so do dictionary that we will pass is the context for the template, with that, we can set
+context for the data that we will show, if we for one thing to be shown depending on the type of user, for example.
+
+What Django does is it takes our template and the template context, mashes those things together, renders it, and send back just raw html to the browser.
+And the user sees that.
+
+context can be any datatype, so let's create a regular dictionary.
+
+so, on the view, we make a dicitonary with the data that we want to past, and on the html that the view brings, we use the key value to show it's content. 
+
+We make the dictionary context of the template context that we want to pass, and then we pass that.
+We can do the same thing witl lists, that are variables that can store multiple data, of different datatypes. With the same sintax of if you would make a dictionary
+but with the [] of lists.
+
+But that opens the discussion for when we want to exibit the data in a list type o things, in the case of lists, the discussion that it opens is about
+"For Loop in a Template"
+
+--- For Loop in a Template"
+
+We have the curly brackets thing to insert code in the template, all of that is django stuff
+
+--- Using Conditions in a Template
+
+First, By LARGE you want to make sure that your logic is handled in your view, when you have a lot of if-else statements, changing the context that you're rendering, in a template.
+
+You don't want the template to do all of that work, but there are cases where you want the template to do that work.
+
+After all those incrementations, tags, and everything, we can finaly understand what the hell all of those tags are.
+They are all built in template tag fiters, is a tag that is rendering something specifically of the Django Templates, and the template engine, it just does a very basic function on that context.
+
+That brings us to
+
+--- Templates Tags and Filters
+1:41:45
+
+Until now we used some tags already, we used "Extends", we used "for-loop" and "if statements", all of those are template tags, but we have a lot more, all is described in the documentation.
+We can write comments, cycle through things, include things.
+
+In this specific topic, we will also learn about filters, like {{ abc|add:1 }} that adds 1 number on the value linked on the keywor_arguments(teplate context value) "abc"
+There's a way to make custom filters too.
+
+The documentation also gives examples of where would you use those filters.
+
+There's also something called "safe" that happens when you pass a html as a context variable on the view.
+
+some of these are just the opposite of each other, some actually renders it, the other just get's rid of it
+
+slugify transforms the html text in something url friendly
+my_html|safe
+my_html|striptags|slugify
+
+title|capfirst|title
+
+--- Render Data from the Database with a Model
+
+We can see more closely the creation of a model in the python shell: python manage.py shell
+
+And import the model we want, in that case, of the Product
+from products.models import Product
+
+and to get the product that has already been built we can do
+Product.objects.get(<the id>) or null to show every one. 
+Product.objects.all() to show all of the current objects instantiated.
+
+You can also store the object that you user the get method in a variable, so that you can see everything you can do with it:
+dir(<variable>)
+you highlight all of the atributes and methods.
+The object inherits from models, so naturally, you cando things like: obj.title to return the atribute title.
+
+it search for the atribute on the model and return what is saved on the database.
+
+Is in that part of the course where we're gonna create the first views that return the data from the database, from the models itself.
+
+The Django's built in features also incudes IDs to our models, even that we not specify this on our model.
+we can check out that configuration on the migrations folder, on initial.py 
+
+    obj = Product.objects.get(id=1) that pass it to the context for it to be returned/rendered.
+
+things is, on the view of our product, pass the object on the context, so that we don't worry of changing each new field that is added or deleted of the model.
+after making the context render the object, on the template, the html file, we can specify the atributes beeing of the object that was passed like: object.title
+
+--- how Django templates Load with apps
+
+1:59:58
+
+
+--- Django Model forms
+For us to allow users to pu data in the database
+2:08:00
+
+  {{ form.as_p }} it's a built in method that transform our form in a html form, randered out with paragrath text <p>
+  
+  in the model, you can set the default to true or false, in the case that the data is a boolean type.  
+
+--- Raw HTML Form
+In that part, we're gonna learn how do a html form really work from scratch, and understand that data, 
+then i will get a little more complicated in order to understand how do a form work in general,
+and then we're gonna better understand how do they work with django, witch is a lot easier.
+
+The first method with django is not the only way to do it, but is certainly one of the easier ones.
+
+the default method for a form is a get method, if you don't speciify the type of the method, wen you click on the save input, 
+the data will be passed on the url, because is a GET method
+
+The "action" will send the form to whatever URL You put there.
+
+--- Pure Django form
+After doing a Form entirely with html, we're gonna learn to do it with django.
+
+2:25:34
+
+on the forms.py we already described a Model Form, but a Pure Django form, we create inheriting from a Standard Django Form, <forms.Form>
+
+In the context of the Django framework, let's understand the following components and their functionalities:
+Model:
+
+Models in Django represent the data structure and define the database schema.
+They encapsulate the fields and behavior of the data entities.
+Models are typically defined as Python classes that inherit from Django's Model class.
+They provide an abstraction layer for interacting with the database.
+Models define attributes like fields, relationships, and methods to interact with the data.
+Views:
+
+Views handle the logic behind processing user requests and generating responses.
+They receive HTTP requests from the client and interact with models and templates to generate the appropriate response.
+Views can retrieve, manipulate, and save data using models.
+They often include business logic, data processing, and decision-making.
+Views can render templates and return HTML responses or handle other types of responses like JSON for API views.
+Controllers (in Django, handled by Views):
+
+In Django, the concept of controllers is merged with views.
+Controllers traditionally refer to the part of the architecture responsible for handling user input and coordinating the application flow.
+In Django, views take on the role of controllers and handle the processing and coordination of the application flow based on user requests.
+Templates:
+
+Templates in Django provide the presentation layer of the application.
+They define the structure and layout of the user interface.
+Templates often include HTML, CSS, and Django template language (DTL) code.
+They allow embedding dynamic content, looping, conditionals, and variable rendering.
+Views can render templates by passing data to them, creating dynamic HTML pages to be returned to the client.
+URLs:
+
+URLs (Uniform Resource Locators) in Django define the mapping between the requested URLs and the corresponding views.
+URLs serve as the entry points to different parts of the application.
+They map the URL patterns to the appropriate views to handle the request.
+URLs can include placeholders and regular expressions to capture dynamic segments of the URL and pass them as parameters to the views.
+
+Here's a simple graph showing the flow of functionalities between these components in the Django framework:
+
+          User Request
+               |
+               v
+          URLs (URL Patterns)
+               |
+               v
+          Views (Controllers)
+               |
+               v
+          Models (Data)
+               |
+               v
+          Templates (Presentation)
+               |
+               v
+          Response to User
+
+In this graph, a user initiates a request, which is matched against the defined URL patterns. 
+The URL mapping leads to a specific view/controller, where the logic for processing the request resides. 
+The view can interact with models to retrieve or modify data. It can also render templates, passing data to create the final response. 
+The response, which can be an HTML page or any other format, is then sent back to the user.
+
+Let's delve into the components of an HTTP request and illustrate them in a graph:
+
+        Client                                           Server
+          |                                                 |
+          |             HTTP Request                        |
+          |---------------------------------------------->  |
+          |                                                 |
+          |            HTTP Response                        |
+          | <-----------------------------------------------|
+          |                                                 |
+
+Within an HTTP request, there are several key components:
+
+URL (Uniform Resource Locator):
+
+The URL specifies the specific resource or action that the client wants to access on the server.
+It includes the protocol (e.g., "http://" or "https://"), the domain name or IP address of the server, and the path to the resource.
+Method:
+
+The HTTP method (also known as the request method) indicates the type of operation the client wants to perform on the specified resource.
+Common methods include:
+GET: Retrieves a representation of the resource.
+POST: Sends data to the server to create a new resource.
+PUT: Sends data to update an existing resource.
+DELETE: Deletes the specified resource.
+Headers:
+
+Headers provide additional information about the request or the client to the server.
+They consist of key-value pairs that convey details such as content type, authentication credentials, caching directives, and more.
+Examples of headers include:
+Content-Type: Specifies the format of the data in the request body (e.g., "application/json", "application/x-www-form-urlencoded").
+Authorization: Contains credentials or tokens for authentication purposes.
+Accept: Specifies the preferred content types that the client can handle in the response.
+Body (optional):
+
+The request body is an optional component, present in certain types of requests such as POST or PUT.
+It contains data sent by the client to the server, typically in formats like JSON, XML, or form data.
+The body can carry information such as form inputs, data for creating or updating resources, or file uploads.
+Here's an updated graph illustrating the components of an HTTP request:
+
+        Client                                           Server
+          |                                                 |
+          |             HTTP Request                        |
+          |---------------------------------------------->  |
+          |    URL                                          |
+          |    Method                                       |
+          |    Headers                                      |
+          |    Body (optional)                              |
+          |                                                 |
+          |            HTTP Response                        |
+          |  <----------------------------------------------|
+          |                                                 |
+
+In this diagram, the client initiates an HTTP request to the server, including the URL, method, headers, and, optionally, the request body.
+The server processes the request and generates an appropriate response, which is then sent back to the client.
+
+Note that the diagram represents a simplified overview of the request components, and in practice,
+there can be more complexity and variations in the actual structure of an HTTP request.
+
+<returning to the important bit of the course>
+
+After passing the argument request.POST on the RawProductForm(wich receives a starndard Django Form), some requirements will appear. 
+Those are called validation errors, it's built in to Django, this is one of the reasons that the html form is inferior, it does not validade the data that is beeing passes through it
+meaning that it can't prevent bad data, but a Pure Django form already has some built in validation requirements.
+
+
+--- Form Widgets
+
+In the state that the RawProductForm is now, with all it's widgets and validations beeing made in the view, it is working indentically with the ProductForm, wich inherits from ModelForm, the only difference
+between the two, really, is like the view handles it
+For now, both of the forms can kinda validate the data that is beeing passed to itself, and save in the database, the only one wich doesn't do that is the one made entirely with html, wich would be really painful to do.
+
+So let's jump to more things about Form Validation Methods
+
+--- Form Validation Methods
+
+Django have a lot of built in validation fields, for wen we try to submit data, Django make a series of validations to make sure that the data matches the that built in validation requirements.
+
+Now with both the forms beeing identical, with the only difference beeing is how the view works with it, we'll be using the ProductForm from now on.
+
+It's really simple to overwrite the fields of the forms themselves, if you bring the field configuration over the "class Meta", you overwrite the field configuration. The field name have to be the same in the "fields" and above the "class Meta"
+
+Now to the good stuff, writting or own requirements, we, can in our form, our own requirements by defining some functions, for that we need first to write:
+
+def clean_<my_field_name>(self, *args, *kwargs)
+
+in that case, we want to validate the title, so we write:
+
+def clean_title(self, *args, **kwargs):
+         title = self.cleaned_data.get("title") # self.cleaned_data we use to get the title itself, it get's the good data that is generated after the validations occur
+         if "CFE" in title:
+              return title
+         else:
+              raise forms.ValidationError("This is not a valid title")
+			  
+You don't do validation only in a form, you can do validation on all sorts of stuff, like fields on our models but the idea of validation works rather it's a Model form our a standard Django Form.
+
+it's important to have the notion that, if the class meta was commented, and the ProductForm class inheritance change to a regular Django Form, all the fields would still render, and all the validations would still be made, but the key defference, is how the view would deal with the form.
+
+
+--- Initial Values for Forms.
